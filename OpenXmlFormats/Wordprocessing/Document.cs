@@ -506,8 +506,15 @@ namespace NPOI.OpenXmlFormats.Wordprocessing
         }
         public CT_Tbl insertNewTbl(int paramInt)
         {
-            throw new NotImplementedException();
+            CT_Tbl tbl = new CT_Tbl();
+            lock (this)
+            {
+                this.itemsField.Insert(paramInt,tbl);
+                this.itemsElementNameField.Add(DocumentBodyItemChoiceType.tbl);
+            }
+            return tbl;
         }
+
         public void removeTbl(int paramInt)
         {
             throw new NotImplementedException();

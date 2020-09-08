@@ -1292,15 +1292,10 @@ namespace NPOI.XWPF.UserModel
         public void InsertTable(int pos, XWPFTable table)
         {
             bodyElements.Insert(pos, table);
+            CT_Tbl[] tblArray = ctDocument.body.GetTblArray();
             int i;
-            CT_Tbl[] barray = ctDocument.body.GetTblArray();
-            for (i = 0; i < barray.Length; i++)
+            for (i = 0; i < tblArray.Length && tblArray[i] != table.GetCTTbl(); i++)
             {
-                //CT_Tbl tbl = ctDocument.body.GetTblArray(i);
-                if (barray[i] == table.GetCTTbl())
-                {
-                    break;
-                }
             }
             tables.Insert(i, table);
         }

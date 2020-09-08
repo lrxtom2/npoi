@@ -178,20 +178,12 @@ namespace NPOI.XWPF.UserModel
          */
         public List<XWPFTableCell> GetTableCells()
         {
-            if (tableCells == null)
+            List<XWPFTableCell> list = new List<XWPFTableCell>();
+            foreach (CT_Tc tc in ctRow.GetTcList())
             {
-                List<XWPFTableCell> cells = new List<XWPFTableCell>();
-                foreach (CT_Tc tableCell in ctRow.GetTcList())
-                {
-                    cells.Add(new XWPFTableCell(tableCell, this, table.Body));
-                }
-
-                //TODO: it is possible to have an SDT that contains a cell in within a row
-                //need to modify this code so that it pulls out SDT wrappers around cells, too.
-
-
-                this.tableCells = cells;
+                list.Add(new XWPFTableCell(tc, this, table.Body));
             }
+            tableCells = list;
             return tableCells;
         }
 

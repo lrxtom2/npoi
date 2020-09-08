@@ -87,6 +87,65 @@ namespace NPOI.XWPF.UserModel
             }
         }
 
+        public XWPFTable(CT_Tbl table, IBody part, XWPFTable source)
+        {
+            this.part = part;
+            ctTbl = table;
+            tableRows = new List<XWPFTableRow>();
+            ctTbl.tblPr = source.ctTbl.tblPr;
+            ctTbl.tblGrid = source.ctTbl.tblGrid;
+            for (int i = 0; i < source.Rows.Count; i++)
+            {
+                CT_Row cT_Row = ctTbl.AddNewTr();
+                XWPFTableRow xWPFTableRow = source.Rows[i];
+                cT_Row.trPr = xWPFTableRow.GetCTRow().trPr;
+                cT_Row.rsidR = xWPFTableRow.GetCTRow().rsidR;
+                cT_Row.rsidTr = xWPFTableRow.GetCTRow().rsidTr;
+                cT_Row.Table = table;
+                XWPFTableRow item = new XWPFTableRow(cT_Row, this);
+                tableRows.Add(item);
+                for (int j = 0; j < xWPFTableRow.GetTableCells().Count; j++)
+                {
+                    CT_Tc cT_Tc = cT_Row.AddNewTc();
+                    XWPFTableCell xWPFTableCell = xWPFTableRow.GetTableCells()[j];
+                    cT_Tc.tcPr = TransReflection<CT_TcPr>(xWPFTableCell.GetCTTc().tcPr);
+                    for (int k = 0; k < xWPFTableCell.Paragraphs.Count; k++)
+                    {
+                        CT_P cT_P = cT_Tc.AddNewP();
+                        XWPFParagraph xWPFParagraph = xWPFTableCell.Paragraphs[k];
+                        cT_P.pPr = xWPFParagraph.GetCTP().pPr;
+                        cT_P.rsidR = xWPFParagraph.GetCTP().rsidR;
+                        cT_P.rsidRPr = xWPFParagraph.GetCTP().rsidRPr;
+                        cT_P.rsidRDefault = xWPFParagraph.GetCTP().rsidRDefault;
+                        cT_P.rsidP = xWPFParagraph.GetCTP().rsidP;
+                        for (int l = 0; l < xWPFParagraph.Runs.Count; l++)
+                        {
+                            CT_R cT_R = cT_P.AddNewR();
+                            XWPFRun xWPFRun = xWPFParagraph.Runs[l];
+                            cT_R.rPr = xWPFRun.GetCTR().rPr;
+                            cT_R.rsidRPr = xWPFRun.GetCTR().rsidRPr;
+                            cT_R.rsidR = xWPFRun.GetCTR().rsidR;
+                            cT_R.AddNewT().Value = xWPFRun.Text;
+                        }
+                    }
+                }
+            }
+        }
+        private TIn TransReflection<TIn>(TIn tIn)
+        {
+            TIn tOut = Activator.CreateInstance<TIn>();
+            var tInType = tIn.GetType();
+            foreach (var itemOut in tOut.GetType().GetProperties())
+            {
+                var itemIn = tInType.GetProperty(itemOut.Name); ;
+                if (itemIn != null)
+                {
+                    itemOut.SetValue(tOut, itemIn.GetValue(tIn));
+                }
+            }
+            return tOut;
+        }
+
         public void SetColumnWidth(int columnIndex, ulong width)
         {
             if (this.ctTbl.tblGrid == null)
